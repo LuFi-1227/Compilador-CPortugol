@@ -1,0 +1,31 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\C_Portugol.cp]
+@="Arquivo de Código CPortugol"
+
+[HKEY_CLASSES_ROOT\C_Portugol.cp\DefaultIcon]
+@="C:\\CPortugol\\Icons\\icon"
+
+[HKEY_CLASSES_ROOT\C_Portugol.cp\shell]
+
+[HKEY_CLASSES_ROOT\C_Portugol.cp\shell\Open]
+@="&Abrir"
+
+[HKEY_CLASSES_ROOT\C_Portugol.cp\shell\Open\command]
+@="code . %1"
+
+[HKEY_CLASSES_ROOT\C_Portugol.cp\shell\Edit]
+@="&Editar"
+
+[HKEY_CLASSES_ROOT\C_Portugol.cp\shell\Edit\command]
+@="code . %1"
+
+[HKEY_CLASSES_ROOT\.cp]
+@="C_Portugol.cp"
+"Content Type"="text/cpCode"
+"C_Portugol.bak"="C_Portugol.cp"
+"PerceivedType"="text"
+
+[HKEY_CLASSES_ROOT\.cp\OpenWithProgids]
+@="C_Portugol.cp"
+"C_Portugol.cp"=hex:
