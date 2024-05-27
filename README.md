@@ -23,11 +23,35 @@ Portanto, a entrada do Analisador Sintático é o código fonte e a saída são 
 ## 2.2 Convenções deste Analisador Léxico:
 ### 2.2.1 Tabela de palavras reservadas:
 ### 2.2.2 Tabela de símbolos:
+### 2.2.3 O que é um Token:
+#### 2.2.3.1 Tipos de Tokens:
 
 ## 2.3 Autômato léxico CPortugol:
 O autômato utilizado na construção do compilador deste repositório é o seguinte autômato:
-<automato>
+![image](https://github.com/LuFi-1227/Compilador-CPortugol/assets/129668645/2238386c-d948-4d6f-8665-0556b2fc7b88)
+Onde cada parte possui uma função que será explicada abaixo:
+
 ### 2.3.1 Ignorando espaços:
+Ignorar espaços é uma tarefa do analisador léxico do compilador, esta tarefa pode ser realizada através da execução do seguinte autômato:
+![image](https://github.com/LuFi-1227/Compilador-CPortugol/assets/129668645/eaf55598-fd87-40a8-a8c0-21b1972f56f4)
+Este autômato se inicia em Q0 e vai para Q1 toda vez que encontra um espaço e por meio de um movimento vazio retorna para Q0, fazendo com que ele possa reconhecer outro espaço ou então possa ir para outros estados do autômato que por sua vez possuem outras funções. Este autômato resulta no seguinte trecho de código:
+```python
+while self.linha:
+  if self.linha[self.pos].isspace():
+    while self.linha[self.pos].isspace() and self.pos < self.tamLinha - 1:
+      self.pos += 1
+```
+Este trecho de código ignora os espaços reconhecidos e ao terminar, está pronto para reconhecer outras entradas no programa.
+
+### 2.3.2 Reconhecendo inteiros e decimais:
+### 2.3.3 Reconhecendo String:
+### 2.3.4 Reconhecendo Operadores:
+#### 2.3.4.1 Função que reconhece operadores:
+### 2.3.5 Reconhecendo Variáveis:
+### 2.3.6 Tokens vazios:
+### 2.3.7 Classificador de Tokens:
+
+## 2.4 Função de Scan completa:
 
 # 3. Analisador Sintático:
 # 4. Analisador Semântico:
