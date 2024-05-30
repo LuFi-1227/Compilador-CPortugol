@@ -12,13 +12,13 @@ O nome da linguagem foi derivado de C (da linguagem C) unido com Portugol (lingu
 
 # 2. Analisador Léxico:
 ## 2.1 O que faz um analisador léxico:
-Um analisador léxico de um compilador pode ser descrito, em sua forma mais simples, como um autômato, pois seu objetivo é reconhecer as entradas no compilador (código objeto) e transformar cada entrada em um token. Um token é a menor parte de um código, ou seja, é uma palavra, um sinal, uma pontuação ou um delimitador. Portanto, um analisador léxico serve para reconhecer e transmitir cada parte do código para o nível abaixo de si. Neste caso, o nível abaixo do analisador léxico é o analisador sintático, e depois dele vem o analisador semântico. Estes 3 analisadores compõe a parte do Front-end do compilador, conforme a imagem abaixo:
+Um analisador léxico de um compilador pode ser descrito, em sua forma mais simples, como um autômato, pois seu objetivo é reconhecer as entradas no compilador (código objeto) e transformar cada entrada em um lexema que será armazenado em um token. Um token é um símbolo terminal da linguagem, ou seja, independentemente dos movimentos do autômato, ele não pode ser modificado, já um lexema é uma sequência de caracteres da entrada (ou do arquivo). Portanto, um analisador léxico serve para reconhecer e transmitir cada parte do código para o nível abaixo de si. Neste caso, o nível abaixo do analisador léxico é o analisador sintático, e depois dele vem o analisador semântico. Estes 3 analisadores compõe a parte do Front-end do compilador, conforme a imagem abaixo:
 ![image](https://github.com/LuFi-1227/Compilador-CPortugol/assets/129668645/838381c8-5c10-4952-a993-b33d458253dc)
 
 Portanto, a entrada do Analisador Sintático é o código fonte e a saída são uma sequência de Tokens provenientes deste código fonte com o objetivo de facilitar a compilação do código-objeto.Para que isto ocorra, o analisador léxico deve fazer 3 coisas:
 1. Ignorar espaços;
-2. <>
-3. 
+2. Agrupar caracteres para formar lexemas;
+3. Armazenar os lexemas em Tokens e reconhecer números, identificadores e palavras-chave;
 
 ## 2.2 Convenções deste Analisador Léxico:
 ### 2.2.1 Tabela de palavras reservadas:
