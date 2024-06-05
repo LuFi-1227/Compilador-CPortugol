@@ -44,7 +44,9 @@ class Token():
                 return RES#palavraReservada
             return ID#identificador ou variavel
 
-  def __init__(self, valor, tipo):
+  def __init__(self, valor, tipo, flag=0):
+    if flag == 1:
+      self.tipo = tipo
     self.tipo = self.classifier(valor, tipo)
     self.valor = valor
 

@@ -90,6 +90,7 @@ class lexicografo():
       if self.tamLinha-1 <= self.pos:
         self.flagEOL = 1
         self.linhaAtual += 1
+        #print(self.linhaAtual)
       return token
     return 1
 
