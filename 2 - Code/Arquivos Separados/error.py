@@ -1,3 +1,4 @@
+import os
 class error():
   def __init__(self):
     self.errors = {
@@ -22,10 +23,12 @@ class error():
         "302" : "Tentativa de criar um vetor com um número não inteiro de elementos",
         "303" : "Tentativa de um não literal se passar por um valor literal",
         "304" : "Tentativa de chamar função com o número errado de parâmetros",
-        "305" : "Tipos de dados diferentes",
+        "305" : "Tentativa de operação com tipos de dados diferentes",
         "306" : "Tipo de retorno da função não condiz com tipo da função",
         "307" : "Numero de variáveis fornecidas no print não é condizente com o número de variáveis chamadas na String",
-        "308" : "Tipo de variável não reconhecida no Scanf"
+        "308" : "Tipo de variável não reconhecida no Scanf",
+        "309" : "Tentativa de acessar valor de variável não declarada anteriormente",
+        "310" : "Tentativa de entrar na função com o tipo errado de argumento"
     }
 
   def error(self, number):
@@ -33,4 +36,12 @@ class error():
       print("Erro sintático:"+self.errors[str(number)])
     else:
       print("Erro semântico:"+self.errors[str(number)])
+      try:
+        os.remove('compillated.c')
+      except:
+        pass
+      try:
+        os.remove('main.c')
+      except:
+        pass
     exit()

@@ -1,1 +1,0 @@
-void main(){int i,j,k;int cont;float doubk,doubj;float teste;char* String1,String2;char* caractere;i=-1;doubj=2;while(i<=10){printf("iteraçao %d",i);i=i+1;j=j+2;}for(k=0;k<10;k=k+1){if(k==2){printf("Rodou");printf("\n");}else{printf("Teste");printf("\n");}}teste0(i,caractere

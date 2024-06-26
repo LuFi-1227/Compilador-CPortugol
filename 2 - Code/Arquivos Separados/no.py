@@ -13,4 +13,3 @@ class no():
 
   def toString(self):
     print(self.token.valor)
-

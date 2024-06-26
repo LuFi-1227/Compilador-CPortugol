@@ -2,12 +2,13 @@ from error import error
 from pilha import Pilha
 from token import Token
 from no import no
-
+import os
 class semantic():
   def __init__(self, table, arvore):
     self.incluir = ["stdio.h", "stdlib.h", "string.h"]
     self.arquivoC = open('compillated.c', 'w+')
     self.Tabela_de_Simbolos = table
+    self.Tabela_de_SimbolosAUX = None
     self.flagPrint = 0
     self.flagScanf = 0
     self.printArgs = 0
@@ -22,6 +23,7 @@ class semantic():
         line = file.readline()
       file.close()
     self.arquivoC.close()
+    os.remove('compillated.c')
 
   def analiseSemantica(self):
     RAIZ = self.arvore.Raiz
@@ -78,8 +80,11 @@ class semantic():
         else:
           self.arquivoC.write(filhos.token.valor)
     if buffer !=None or buffer2 != None:
-      if self.tipoDado(buffer) == self.tipoDado(buffer2):
-        return buffer
+      if (self.tipoDado(buffer) == self.tipoDado(buffer2)) or ((self.tipoDado(buffer)==261 and self.tipoDado(buffer2)==262) or (self.tipoDado(buffer)==262 and self.tipoDado(buffer2)==261)):
+        if self.tipoDado(buffer) == 262:
+          return buffer
+        else:
+          return buffer2
       else:
         if buffer == None and buffer2 != None:
           return buffer2
@@ -108,17 +113,22 @@ class semantic():
       else:
         self.arquivoC.write(filhos.token.valor)
     if buffer1 != None and buffer2 != None:
-      if number == 0:
-        if self.tipoDado(buffer1) == self.tipoDado(buffer2):
+      #print("Chegou")
+      if (self.tipoDado(buffer1) == self.tipoDado(buffer2)) or ((self.tipoDado(buffer1)==261 and self.tipoDado(buffer2)==262) or (self.tipoDado(buffer1)==262 and self.tipoDado(buffer2)==261)):
+        if self.tipoDado(buffer1)==262:
           return buffer1
         else:
-          if buffer1 == None and buffer2 != None:
-            return buffer2
-          else:
-            if buffer1 != None and buffer2 == None:
-              return buffer1
-          print("Buffer1"+str(buffer1) + "Buffer2"+str(buffer2))
-          self.error.error(305)
+          return buffer2
+      else:
+        print("Buffer1"+str(buffer1) + "Buffer2"+str(buffer2))
+        self.error.error(305)
+    else:
+      if number == 0:
+        if buffer1 == None and buffer2 != None:
+          return buffer2
+        else:
+          if buffer1 != None and buffer2 == None:
+            return buffer1
       else:
         if self.pilha.topo != None:
           if buffer1 != None:
@@ -126,7 +136,8 @@ class semantic():
               self.pilha.pop()
               return buffer1
             else:
-              print("Buffer"+str(self.tipoDado(buffer1))+ "Topo"+str(self.tipoDado(self.pilha.topo.token.valor)))
+              print(str(self.pilha.topo.token.valor))
+              print("Buffer0"+str(self.tipoDado(buffer1))+ "Topo"+str(self.tipoDado(self.pilha.topo.token.valor)))
               self.error.error(306)
           else:
             if buffer2 != None:
@@ -141,17 +152,17 @@ class semantic():
     for filhos in node.filhos:
       if number == 1:
         if filhos.token.tipo == -17:#expressao
-          self.expressao(filhos, 1)
+          self.expressao(filhos)
         if filhos.token.tipo == 264:
           self.arquivoC.write(filhos.token.valor)
           return self.Tabela_de_Simbolos.getReg(filhos.token.valor.lower())
       else:
         if filhos.token.tipo == -17:#expressao
-          self.expressao(filhos, 1)
+          self.expressao(filhos)
         if filhos.token.tipo == 264:
           if self.flagScanf == 1:
             if self.tipoDado(self.Tabela_de_Simbolos.getReg(filhos.token.valor.lower())) == 256:
-              self.arquivoC.write('FILE *A = fopen("StringColeta.txt", "w"); if(A==NULL){print("Falha na execução do programa quanto a atribuição de cadeia de caracteres"); return;}else{char teclado[BUFSIZ]; setbuf(stdin, teclado); fgets(teclado, BUFSIZ, stdin); fputs(teclado, A);}')
+              self.arquivoC.write('char teclado[BUFSIZ]; setbuf(stdin, teclado); fgets(teclado, BUFSIZ, stdin);'+filhos.token.valor+'= teclado')
             elif self.tipoDado(self.Tabela_de_Simbolos.getReg(filhos.token.valor.lower())) == 261:
               self.arquivoC.write('"%d", &'+filhos.token.valor)
             elif self.tipoDado(self.Tabela_de_Simbolos.getReg(filhos.token.valor.lower())) == 262:
@@ -160,7 +171,13 @@ class semantic():
               self.error.error(308)
             self.flagScanf = 0
           else:
-            self.arquivoC.write(filhos.token.valor)
+            variavel = self.Tabela_de_Simbolos.getReg(filhos.token.valor.lower())
+            if variavel == None:
+              print("Variavel "+filhos.token.valor.lower()+" Não declarada!")
+              self.error.error(309)
+            else:
+              self.arquivoC.write(filhos.token.valor)
+              return variavel
 
   def declaracaoVariaveisBloco(self, node): ## -> 263 123  declaracao_variaveis* 125;
     for filhos in node.filhos:
@@ -181,21 +198,32 @@ class semantic():
       return filhos.token.valor
 
   def linhaAtribuicao(self,node): ## -> (lvalue) "=" (expressao) ";";
+    buffer1 = None
+    buffer2 = None
     for filhos in node.filhos:
       if filhos.token.tipo < 0:
         if filhos.token.tipo == -1:#lvalue
-          self.lvalue(filhos, 1)
+          buffer1 = self.lvalue(filhos)
         elif filhos.token.tipo == -17:#expressao
-          self.expressao(filhos, 1)
+          buffer2 = self.expressao(filhos)
       else:
-          self.arquivoC.write(filhos.token.valor)
+          if buffer1 != None and buffer2 != None:
+            if (self.tipoDado(buffer1) == self.tipoDado(buffer2)) or (self.tipoDado(buffer1)==262 and self.tipoDado(buffer2)==261):
+              self.arquivoC.write(filhos.token.valor)
+            else:
+              print("buf1"+str(buffer1)+"buff2"+str(buffer2))
+              self.error.error(305)
+          else:
+            self.arquivoC.write(filhos.token.valor)
+
 
   def funcaoArgumentos(self, node, number=0): ## -> (expressao) ("," expressao)*;
     cont = 0
+    bufferT = []
     for filhos in node.filhos:
       if filhos.token.tipo < 0:
         if filhos.token.tipo == -17:#expressao
-          self.expressao(filhos)
+          bufferT.append(self.expressao(filhos))
           cont += 1
       else:
         self.arquivoC.write(filhos.token.valor)
@@ -208,15 +236,26 @@ class semantic():
         self.printArgs = 0
       if self.flagScanf == 1:
         self.flagScanf = 0
-
     else:
-      if cont != self.Tabela_de_Simbolos.getReg("numPam"):
-        self.error.error(304)
+      if self.Tabela_de_SimbolosAUX != None:
+        if cont != self.Tabela_de_SimbolosAUX.getReg("numPam"):
+          self.error.error(304)
+        else:
+          i = 0
+          for nomes in self.Tabela_de_SimbolosAUX.dicionario:
+            if self.tipoDado(bufferT[i]) != self.tipoDado(self.Tabela_de_SimbolosAUX.getReg(nomes)):
+              self.error.error(310)
+            if i == cont-1:
+              break
+            i += 1
+      else:
+        self.error.error(301)
 
   def funcaoChamar(self,node): ## -> 264 "(" (funcao_argumentos?) ")";
     NomeBuffer = ""
     flagEscreval = 0
     flag = 0
+    flagScanf = 0
     for filhos in node.filhos:
       if filhos.token.tipo < 0:
         if filhos.token.tipo == -11:#funcao_argumentos
@@ -228,8 +267,9 @@ class semantic():
         if filhos.token.tipo==264:
           NomeBuffer = filhos.token.valor
           if NomeBuffer != "escreva" and NomeBuffer != "leia" and NomeBuffer != "escreval":
-            self.Tabela_de_Simbolos = self.Tabela_de_Simbolos.getTab(NomeBuffer.lower())
-            self.arquivoC.write(filhos.token.valor)
+            if self.Tabela_de_SimbolosAUX == None:
+              self.Tabela_de_SimbolosAUX = self.Tabela_de_Simbolos.getTab(NomeBuffer.lower())
+            self.arquivoC.write(filhos.token.valor+"(")
             flag = 1
           else:
             if NomeBuffer == "escreva" or NomeBuffer == "escreval":
@@ -238,13 +278,15 @@ class semantic():
               self.arquivoC.write("printf(")
               self.flagPrint = 1
             else:
-              self.arquivoC.write("scanf(")
+              flagScanf = 1
               self.flagScanf = 1
     if flag ==1:
-      self.Tabela_de_Simbolos = self.Tabela_de_Simbolos.prox_tabela
+      self.arquivoC.write(")")
+      self.Tabela_de_SimbolosAUX = None
       return self.Tabela_de_Simbolos.getReg(NomeBuffer)
-
-    self.arquivoC.write(")")
+    if flagScanf == 0:
+      self.arquivoC.write(")")
+      flagScanf = 0
     if flagEscreval == 1:
       self.arquivoC.write(';printf("\\n")')
 
@@ -375,9 +417,9 @@ class semantic():
                   if filhos.token.valor[i+1] == 'i' or filhos.token.valor[i+1] == 'c' or filhos.token.valor[i+1] == 'f' or filhos.token.valor[i+1] == 's' or filhos.token.valor[i+1] == 'd':
                     self.printArgs += 1
                     if filhos.token.valor[i+1] == 'i':
-                      filhos.token.valor[i+1] = 'd'
+                      filhos.token.valor[i+1].replace('i', 'd')
                     elif filhos.token.valor[i+1] == 'c':
-                      filhos.token.valor[i+1] = 's'
+                      filhos.token.valor[i+1].replace('c', 's')
           self.arquivoC.write(str(filhos.token.valor))
           return filhos.token.tipo
         else:
@@ -406,8 +448,6 @@ class semantic():
           bufferVar = filhos.token.valor.lower()
           if self.Tabela_de_Simbolos.getReg(filhos.token.valor.lower()) != bufferTipo:
             self.error.error(301)
-          else:
-            self.pilha.empilha(no(Token(bufferTipo+":"+filhos.token.valor.lower(), 0, 1)))
           self.arquivoC.write(filhos.token.valor)
         else:
           if filhos.token.tipo==44 or filhos.token.tipo==59:
@@ -501,3 +541,9 @@ class semantic():
         if filhos.token.tipo<255:
           if filhos.token.tipo==123:
             self.arquivoC.write(filhos.token.valor)
+    if not flag:
+      self.arquivoC.close()
+      self.arquivoC = open('main.c', 'w+')
+      for include in self.incluir:
+        self.arquivoC.write("#include<"+include+">\n")
+      flag = True

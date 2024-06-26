@@ -1,5 +1,4 @@
 from token import Token
-
 class lexicografo():
   def __init__(self, nArquivo):
     self.pos = 0 #Posiçao que o lexicógrafo está lendo no estado atual do programa

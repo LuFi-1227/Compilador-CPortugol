@@ -209,6 +209,14 @@ class error():
       print("Erro sintático:"+self.errors[str(number)])
     else:
       print("Erro semântico:"+self.errors[str(number)])
+      try:
+        os.remove('compillated.c')
+      except:
+        pass
+      try:
+        os.remove('main.c')
+      except:
+        pass
     exit()
 
 class no():
@@ -816,6 +824,7 @@ class semantic():
         line = file.readline()
       file.close()
     self.arquivoC.close()
+    os.remove('compillated.c')
 
   def analiseSemantica(self):
     RAIZ = self.arvore.Raiz
@@ -1359,15 +1368,15 @@ except FileNotFoundError:
         }
 
         { //Abre chaves para o código
-          escreval("Olá mundo!");
-          escreval("Qual é o seu nome?");
+          escreval("Ola mundo!");
+          escreval("Qual e o seu nome?");
           leia(caractere);
           escreval("Seja bem vindo, %s", caractere);
         }
       }""")
       file.close()
       #P.Tabela_de_Simbolos.toString()# __ testa a tabela
-      # P.pilha.esvazia() ___ Testa a pilha
+      #P.pilha.esvazia() ___ Testa a pilha
     P = parser(r'HelloWorld.cp')
   else:
     exit()
@@ -1380,15 +1389,10 @@ try:
   open('main.c', 'r').close()
   os.system('gcc main.c -o main.exe')
   os.system('main.exe')
+  os.remove('main.exe')
 except:
   os.system('gcc compillated.c -o main.exe')
   os.system('main.exe')
-
-try:
-  open(r'compillated.c').close()
-  os.remove('compillated.c')
-except FileNotFoundError:
-  pass
 
 try:
   open(r'HelloWorld.cp').close()
@@ -1399,8 +1403,9 @@ except FileNotFoundError:
   pass
 
 try:
+  resposta = input("Deseja remover o arquivo main.c?[S/n]")
   open(r'main.c').close()
-  os.remove('main.c')
-  os.remove('main.exe')
+  if resposta != 'n' and resposta != 'no' and resposta != 'nao' and resposta != 'not' and resposta != 'não': 
+    os.remove('main.c')
 except:
   pass

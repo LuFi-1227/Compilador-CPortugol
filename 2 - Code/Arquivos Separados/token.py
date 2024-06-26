@@ -9,7 +9,7 @@ FLUT = 262
 RES = 263
 ID = 264
 
-palavrasReservadas = ['se', 'senao', 'para', 'enquanto', 'funçao', 'inteiro', 'flut', 'variaveis', 'algoritmo', 'cadeia', 'retorne']
+palavrasReservadas = ['se', 'senao', 'para', 'enquanto', 'funcao', 'inteiro', 'flut', 'variaveis', 'algoritmo', 'cadeia', 'retorne']
 class Token():
   def classifier(self, valor, tipo):
     if tipo == -1:

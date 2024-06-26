@@ -446,7 +446,7 @@ class parser():
     self.pilha.empilha(aux)
 
   def funcao_declaracao(self, node): # funcao_declaracao ->  "função" tipo_primitivo 264 "(" funcao_parametros? ")" funcao_declaracao_variaveis linha_bloco;
-    #print(self.lookahead.valor.lower())
+    #print("FF"+self.lookahead.valor.lower())
     if self.lookahead.tipo == 263:
       aux = no(Token("funcao_declaracao", -21, 1))
       node.addFilho(aux)
