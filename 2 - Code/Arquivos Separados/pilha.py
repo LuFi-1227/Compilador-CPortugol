@@ -17,7 +17,7 @@ class Pilha():
     for n in range(number):
       if not self.vazio():
         aux = self.topo
-        print(aux.valor)
+        print(aux.token.valor)
         self.topo = aux.prox
         self.tamanho -= 1
         return aux;

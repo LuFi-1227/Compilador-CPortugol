@@ -15,7 +15,7 @@ class Arvore():
         ponteiro = "└── ";
         segmento = "    ";
 
-    print(prefixo + ponteiro + str(aux.token.valor))
+    print(prefixo + ponteiro + str(aux.token.valor)+":"+str(aux.token.tipo))
 
     N_prefixo = prefixo + segmento
 

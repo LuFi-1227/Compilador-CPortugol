@@ -1,6 +1,6 @@
 class TabelaDeSimbolos():
   def __init__(self, ident):
-    self.ident = ident
+    self.ident = ident.lower()
     self.prox_tabela = None
     self.tabela_filha = []
     self.dicionario = dict()
@@ -19,15 +19,15 @@ class TabelaDeSimbolos():
 
   def getTab(self,ident):
     for tabela in self.tabela_filha:
-      if ident == self.tabela_filha.ident:
-        return self.tabela_filha
+      if ident == tabela.ident:
+        return tabela
 
   def dictToString(self):
     for d in self.dicionario:
-      print(d + ":" + self.dicionario[d])
+      print(str(d) + ":" + str(self.dicionario[d]))
 
   def toString(self):
-    print("{")
+    print(self.ident+"{")
     self.dictToString()
     for filho in self.tabela_filha:
       filho.toString()

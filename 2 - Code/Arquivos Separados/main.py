@@ -1,51 +1,37 @@
 from sintatico import parser
+from semantico import semantic
 
 try:
-  P = parser(r'tt.cp')
+ P = parser(r'AA.cp')
 except FileNotFoundError:
-  with open('tt.cp', 'w') as file:
+  with open('AA.cp', 'w') as file:
     file.writelines("""
     algoritmo{
-      variaveis{
-        inteiro i, j, k;
+      variaveis{ //Abre chaves para as variáveis
         inteiro cont;
-        flut doubK, doubj;
         flut teste;
-        cadeia String1, String2;
         cadeia caractere;
       }
-      {
-        enquanto(i <= 10){
-          escreva("iteraçao", i);
-          i = i + 1;
-          j = j + 2;
-        }
 
-        para(k = 0; k<10; k = k + 1){
-          Se(k == 2){
-            escreval("Rodou");
-          }senao{
-            escreval("Teste");
-          }
-        }
-      }
-
-      funçao inteiro teste0(inteiro i, flut k){
-          i = i+1;
-          k = k+2;
-          escreval("inteiro" + i + "flutuante" + k);
-      }
-
-      funçao cadeia teste2(){
-          inteiro i;
-          flut k;
-          i = 10;
-          k = 20;
-          retorne("inteiro"+ i+ "flutuante"+ k);
+      { //Abre chaves para o código
+        escreval("Olá mundo!");
       }
     }""")
     file.close()
-    # P.Tabela_de_Simbolos.toString() __ testa a tabela
-    P = parser(r'tt.cp')
+    #P.Tabela_de_Simbolos.toString()# __ testa a tabela
+    # P.pilha.esvazia() ___ Testa a pilha
+    P = parser(r'AA.cp')
+#P.Tabela_de_Simbolos.toString()
+#P.arvore.toString()
 
-P.arvore.toString()
+S = semantic(P.Tabela_de_Simbolos, P.arvore)
+
+import os
+try:
+  open(r'compillated.c')
+  os.remove('compillated.c')
+except FileNotFoundError:
+  pass
+
+os.system('gcc main.c -o main.exe')
+os.system('./main.exe')

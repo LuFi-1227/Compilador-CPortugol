@@ -58,6 +58,10 @@ class lexicografo():
                 buffer = buffer + self.linha[self.pos]
                 self.pos = self.pos + 1
               if flag == -1:
+                if self.linha[self.pos] != '"':
+                  while self.linha[self.pos] != '"':
+                    buffer = buffer + self.linha[self.pos]
+                    self.pos = self.pos + 1
                 buffer = buffer + self.linha[self.pos]
                 self.pos = self.pos + 1
               if buffer == "//" or buffer == "/":
@@ -68,7 +72,7 @@ class lexicografo():
                   self.linha = self.arquivo.readline()
                   while self.linha.find("*/")==-1:
                     self.linha = self.arquivo.readline()
-          if tipo != -1:
+          if tipo != -1 and tipo != 77:
             tipo = 3 #Configurando o tipo do token para Operadores
         else:
           if self.linha[self.pos].isalnum():
@@ -80,6 +84,7 @@ class lexicografo():
       if tipo != 0 and tipo != 1:
         buffer.replace("\n", "")
       if tipo != -1:
+        #print("criar Token:"+str(buffer)+":"+str(tipo))
         token = Token(buffer, tipo)
       else:
         token = self.tokenVazio
@@ -92,7 +97,7 @@ class lexicografo():
         self.linhaAtual += 1
         #print(self.linhaAtual)
       return token
-    return 1
+    return Token("EOF", 999)
 
   def seOperador(self, caractere):
     if '=<>|&!"/'.find(caractere) != -1:

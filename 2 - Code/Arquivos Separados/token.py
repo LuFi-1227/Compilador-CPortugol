@@ -10,7 +10,6 @@ RES = 263
 ID = 264
 
 palavrasReservadas = ['se', 'senao', 'para', 'enquanto', 'funçao', 'inteiro', 'flut', 'variaveis', 'algoritmo', 'cadeia', 'retorne']
-
 class Token():
   def classifier(self, valor, tipo):
     if tipo == -1:
@@ -47,7 +46,8 @@ class Token():
   def __init__(self, valor, tipo, flag=0):
     if flag == 1:
       self.tipo = tipo
-    self.tipo = self.classifier(valor, tipo)
+    else:
+      self.tipo = self.classifier(valor, tipo)
     self.valor = valor
 
   def toString(self):

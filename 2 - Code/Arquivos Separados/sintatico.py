@@ -4,14 +4,16 @@ from arvore import Arvore
 from pilha import Pilha
 from tabelaDeSimbolos import TabelaDeSimbolos
 from no import no
-import token
+from token import Token
+
 class parser():
   def __init__(self, nomeArquivo):
+    self.bufferID = ""
     self.bufferTipo = ""
     self.bufferIdent = ""
     self.errors = error()
     self.pilha = Pilha()
-    self.Tabela_de_Simbolos = TabelaDeSimbolos("main")
+    self.Tabela_de_Simbolos = TabelaDeSimbolos("global")
     self.arvore = Arvore()
     self.lex = lexicografo(nomeArquivo)
     self.lookahead = self.lex.scan()
@@ -25,6 +27,9 @@ class parser():
       node.addFilho(nof)
       self.pilha.empilha(nof)
       self.lookahead = self.lex.scan()
+      #print(self.lookahead.toString())
+      while self.lookahead.tipo == -1:
+        self.lookahead = self.lex.scan()
     else:
       print("Erro de Sintaxe na linha", self.lex.getLinhaAtual()+1, self.lookahead.toString())
       self.errors.error(token)
@@ -32,13 +37,17 @@ class parser():
       #exit()
 
   def lvalue(self, node, flag=0): ## lvalue -> 264 ("[" expressao "]")*;
-    aux = no(token.Token("lvalue", -1, 1))
+    aux = no(Token("lvalue", -1, 1))
     node.addFilho(aux)
     aux.setPai(node)
     if flag == 0:
       if self.Tabela_de_Simbolos.getReg(self.lookahead.valor.lower()) == None:
           self.Tabela_de_Simbolos.register(self.lookahead.valor.lower(), self.bufferTipo)
       self.match(264, aux)
+    else:
+      nof = no(self.bufferID)
+      aux.addFilho(nof)
+      nof.setPai(aux)
     while self.lookahead.tipo == 91:
       self.match(91, aux)
       self.expressao(aux)
@@ -48,35 +57,35 @@ class parser():
   def linha_lista(self, node): ## linha_lista -> linha_atribuicao | funcao_chamar ";"| linha_retorno | linha_se | linha_enquanto | linha_para;
     #print(self.lookahead.valor.lower())
     if self.lookahead.valor.lower() == "para":
-      aux = no(token.Token("linha_lista", -2, 1))
+      aux = no(Token("linha_lista", -2, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.linha_para(aux)
       self.pilha.empilha(aux)
     else:
       if self.lookahead.valor.lower() == "enquanto":
-        aux = no(token.Token("linha_lista", -2, 1))
+        aux = no(Token("linha_lista", -2, 1))
         node.addFilho(aux)
         aux.setPai(node)
         self.linha_enquanto(aux)
         self.pilha.empilha(aux)
       else:
         if self.lookahead.valor.lower() == "se":
-          aux = no(token.Token("linha_lista", -2, 1))
+          aux = no(Token("linha_lista", -2, 1))
           node.addFilho(aux)
           aux.setPai(node)
           self.linha_se(aux)
           self.pilha.empilha(aux)
         else:
           if self.lookahead.valor.lower() == "retorne":
-            aux = no(token.Token("linha_lista", -2, 1))
+            aux = no(Token("linha_lista", -2, 1))
             node.addFilho(aux)
             aux.setPai(node)
             self.linha_retorno(aux)
             self.pilha.empilha(aux)
           else:
             if self.lookahead.tipo == 264:
-              aux = no(token.Token("linha_lista", -2, 1))
+              aux = no(Token("linha_lista", -2, 1))
               node.addFilho(aux)
               aux.setPai(node)
               if(self.funcao_chamar(aux)!=-1):
@@ -88,7 +97,7 @@ class parser():
                 self.pilha.empilha(aux)
 
   def linha_atribuicao(self, number, node): ## linha_atribuicao -> lvalue "=" expressao ";";
-    aux = no(token.Token("linha_atribuicao", -3, 1))
+    aux = no(Token("linha_atribuicao", -3, 1))
     node.addFilho(aux)
     aux.setPai(node)
     self.lvalue(aux, number)
@@ -100,7 +109,7 @@ class parser():
 
   def linha_se(self, node): ## linha_se -> "se" expressao 123 linha_lista 125 ("senão" 123 linha_lista 125)?;
     if self.lookahead.tipo == 263:
-      aux = no(token.Token("linha_se", -4, 1))
+      aux = no(Token("linha_se", -4, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(263, aux)
@@ -110,7 +119,7 @@ class parser():
       self.match(125, aux)
       self.pilha.empilha(aux)
     if self.lookahead.tipo == 263 and self.lookahead.valor.lower() == "senao":
-      aux = no(token.Token("linha_se", -4, 1))
+      aux = no(Token("linha_se", -4, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(263, aux)
@@ -121,7 +130,7 @@ class parser():
 
   def linha_para(self, node): ## linha_para -> "para" 40 linha_atribuicao 59 expressao 59 linha_atribuicao 41 123 linha_lista 125;
     if self.lookahead.tipo == 263:
-      aux = no(token.Token("linha_para", -5, 1))
+      aux = no(Token("linha_para", -5, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(263, aux)
@@ -142,7 +151,7 @@ class parser():
 
   def linha_retorno(self, node): ## linha_retorno -> "retorne" expressao? ";";
     if self.lookahead.tipo == 263:
-      aux = no(token.Token("linha_retorno", -6, 1))
+      aux = no(Token("linha_retorno", -6, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(263, aux)
@@ -153,7 +162,7 @@ class parser():
 
   def linha_enquanto(self, node): ## linha_enquanto -> "enquanto" 40 expressao 41 123 linha_lista 125;
     if self.lookahead.tipo == 263:
-      aux = no(token.Token("linha_enquanto", -7, 1))
+      aux = no(Token("linha_enquanto", -7, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(263, aux)
@@ -168,7 +177,7 @@ class parser():
 
   def tipo_primitivo(self, node): ## tipo_primitivo -> 263;
     if self.lookahead.tipo == 263:
-      aux = no(token.Token("tipo_primitivo", -8, 1))
+      aux = no(Token("tipo_primitivo", -8, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.bufferTipo = self.lookahead.valor.lower()
@@ -176,7 +185,7 @@ class parser():
       self.pilha.empilha(aux)
 
   def funcao_parametro(self, node): ## funcao_parametro -> tipo_primitivo 264;
-    aux = no(token.Token("funcao_parametro", -9, 1))
+    aux = no(Token("funcao_parametro", -9, 1))
     node.addFilho(aux)
     aux.setPai(node)
     self.tipo_primitivo(aux)
@@ -185,17 +194,20 @@ class parser():
     self.pilha.empilha(aux)
 
   def funcao_parametros(self, node): ## funcao_parametros -> funcao_parametro (<44> funcao_parametro)*;
-    aux = no(token.Token("funcao_parametros", -10, 1))
+    aux = no(Token("funcao_parametros", -10, 1))
     node.addFilho(aux)
     aux.setPai(node)
     self.funcao_parametro(aux)
+    cont = 1
     while self.lookahead.tipo == 44:
       self.match(44, aux)
       self.funcao_parametro(aux)
+      cont+=1
+    self.Tabela_de_Simbolos.register("numPam", cont)
     self.pilha.empilha(aux)
 
   def funcao_argumentos(self, node): ## funcao_argumentos -> expressao ("," expressao)*;     _____ Quando chama a função
-    aux = no(token.Token("funcao_argumentos", -11, 1))
+    aux = no(Token("funcao_argumentos", -11, 1))
     node.addFilho(aux)
     aux.setPai(node)
     self.expressao(aux)
@@ -206,11 +218,12 @@ class parser():
 
   def funcao_chamar(self, node): ## funcao_chamar -> 264 "(" funcao_argumentos? ")";
     if self.lookahead.tipo == 264:
-      aux = no(token.Token("funcao_chamar", -12, 1))
-      node.addFilho(aux)
-      aux.setPai(node)
+      aux = no(Token("funcao_chamar", -12, 1))
+      self.bufferID = self.lookahead
       self.match(264, aux)
       if self.lookahead.tipo == 40:
+        node.addFilho(aux)
+        aux.setPai(node)
         self.match(40, aux)
       else:
         return -1
@@ -221,28 +234,28 @@ class parser():
 
   def literais(self, node): ## literais -> 261 | 262 | 256;
     if self.lookahead.tipo == 261:
-      aux = no(token.Token("literais", -13, 1))
+      aux = no(Token("literais", -13, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(261, aux)
       self.pilha.empilha(aux)
     else:
       if self.lookahead.tipo == 262:
-        aux = no(token.Token("literais", -13, 1))
+        aux = no(Token("literais", -13, 1))
         node.addFilho(aux)
         aux.setPai(node)
         self.match(262, aux)
         self.pilha.empilha(aux)
       else:
         if self.lookahead.tipo == 256:
-          aux = no(token.Token("literais", -13, 1))
+          aux = no(Token("literais", -13, 1))
           node.addFilho(aux)
           aux.setPai(node)
           self.match(256, aux)
           self.pilha.empilha(aux)
 
   def declaracao_variaveis(self, node): ## declaracao_variaveis -> tipo_primitivo 264 (("," 264)*| ("[" literais "]")*)*";";
-    aux = no(token.Token("declaracao_variaveis", -14, 1))
+    aux = no(Token("declaracao_variaveis", -14, 1))
     node.addFilho(aux)
     aux.setPai(node)
     self.tipo_primitivo(aux)
@@ -265,21 +278,21 @@ class parser():
     flag = 0
     aux = None
     if self.lookahead.tipo == 124: # "|"
-      aux = no(token.Token("Add", -15, 1))
+      aux = no(Token("Add", -15, 1))
       node.addFilho(aux)
       aux.setPai(node)
       flag = 10
       self.match(124, aux)
     else:
       if self.lookahead.tipo == 38: # "&"
-        aux = no(token.Token("Add", -15, 1))
+        aux = no(Token("Add", -15, 1))
         node.addFilho(aux)
         aux.setPai(node)
         flag = 10
         self.match(38, aux)
       else:
         if self.lookahead.tipo == 61: # ("=")
-          aux = no(token.Token("Add", -15, 1))
+          aux = no(Token("Add", -15, 1))
           node.addFilho(aux)
           aux.setPai(node)
           flag = 10
@@ -287,7 +300,7 @@ class parser():
         else:
           if self.lookahead.tipo == 62 or self.lookahead.tipo == 257 or self.lookahead.tipo == 60 or self.lookahead.tipo == 258 or self.lookahead.tipo == 259 or self.lookahead.tipo == 260:
           # (">"|">="|"<"|"<="|"=="|"!=")
-            aux = no(token.Token("Add", -15, 1))
+            aux = no(Token("Add", -15, 1))
             node.addFilho(aux)
             aux.setPai(node)
             flag = 10
@@ -310,7 +323,7 @@ class parser():
                         self.match(260, aux)
           else:
             if self.lookahead.tipo == 43 or self.lookahead.tipo == 45: # ("+" | "-")
-              aux = no(token.Token("Add", -15, 1))
+              aux = no(Token("Add", -15, 1))
               node.addFilho(aux)
               aux.setPai(node)
               flag = 10
@@ -324,7 +337,7 @@ class parser():
                 self.match(45, aux)
             else:
               if self.lookahead.tipo == 47 or self.lookahead.tipo == 42 or self.lookahead.tipo == 37: # ("/"|"*"|"%")
-                aux = no(token.Token("Add", -15, 1))
+                aux = no(Token("Add", -15, 1))
                 node.addFilho(aux)
                 aux.setPai(node)
                 flag = 10
@@ -351,7 +364,7 @@ class parser():
 
   def termo(self, node): ## termo -> funcao_chamar | lvalue | literais | "(" expressao ")";
     if self.lookahead.tipo == 40:
-      aux = no(token.Token("termo", -16, 1))
+      aux = no(Token("termo", -16, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(40, aux)
@@ -359,7 +372,7 @@ class parser():
       self.match(41, aux)
       self.pilha.empilha(aux)
     else:
-      aux = no(token.Token("termo", -16, 1))
+      aux = no(Token("termo", -16, 1))
       node.addFilho(aux)
       aux.setPai(node)
       if self.lookahead.tipo == 264:
@@ -374,7 +387,7 @@ class parser():
       self.pilha.empilha(aux)
 
   def expressao(self, node): ## expressao - > ("+"|"-"|"!")? termo Add;
-    aux = no(token.Token("expressao", -17, 1))
+    aux = no(Token("expressao", -17, 1))
     node.addFilho(aux)
     aux.setPai(node)
     if self.lookahead.tipo == 43:
@@ -397,7 +410,7 @@ class parser():
 
   def funcao_declaracao_variaveis(self, node): ## funcao_declaracao_variaveis -> "{" (declaracao_variaveis)*;
     if self.lookahead.tipo == 123:
-      aux = no(token.Token("funcao_declaracao_variaveis", -18, 1))
+      aux = no(Token("funcao_declaracao_variaveis", -18, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(123, aux)
@@ -409,7 +422,7 @@ class parser():
 
   def declaracao_variaveis_bloco(self, node): ## declaracao_variaveis_bloco -> 263 123  declaracao_variaveis* 125;
     if self.lookahead.tipo == 263:
-      aux = no(token.Token("declaracao_variaveis_bloco", -19, 1))
+      aux = no(Token("declaracao_variaveis_bloco", -19, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(263, aux)
@@ -422,7 +435,7 @@ class parser():
       return
 
   def linha_bloco(self, node, number=0): ## linha_bloco -> 123 (linha_lista)* 125;
-    aux = no(token.Token("linha_bloco", -20, 1))
+    aux = no(Token("linha_bloco", -20, 1))
     node.addFilho(aux)
     aux.setPai(node)
     if number == 0:
@@ -435,12 +448,12 @@ class parser():
   def funcao_declaracao(self, node): # funcao_declaracao ->  "função" tipo_primitivo 264 "(" funcao_parametros? ")" funcao_declaracao_variaveis linha_bloco;
     #print(self.lookahead.valor.lower())
     if self.lookahead.tipo == 263:
-      aux = no(token.Token("funcao_declaracao", -21, 1))
+      aux = no(Token("funcao_declaracao", -21, 1))
       node.addFilho(aux)
       aux.setPai(node)
       self.match(263, aux)
       self.tipo_primitivo(aux)
-      self.Tabela_de_Simbolos.register(self.lookahead.valor.lower(), self.bufferTipo+":func")
+      self.Tabela_de_Simbolos.register(self.lookahead.valor.lower(), self.bufferTipo)
       TabAux = TabelaDeSimbolos(self.lookahead.valor.lower())
       self.Tabela_de_Simbolos.setFilha(TabAux)
       TabAux.setPai(self.Tabela_de_Simbolos)
@@ -455,9 +468,10 @@ class parser():
       self.Tabela_de_Simbolos = self.Tabela_de_Simbolos.prox_tabela
 
   def declaracao_algoritmo(self): # declaracao_algoritmo -> 263 123 (declaracao_variaveis_bloco)? linha_bloco (funcao_declaracao)* 125;
-    aux = no(token.Token("declaracao_algoritmo", -22, 1))
+    aux = no(Token("declaracao_algoritmo", -22, 1))
+    vazio = no(Token("vazio", -99, 1))
     if self.lookahead.tipo == 263:
-      self.match(263, aux)
+      self.match(263, vazio)
       self.match(123, aux)
       self.declaracao_variaveis_bloco(aux)
       self.linha_bloco(aux)
