@@ -1,0 +1,77 @@
+UNIVERSIDADE FEDERAL DO TOCANTINS _ CÂMPUS PALMAS _ 27/06/2024
+Disciplina: Compiladores _ Curso de bacharelado em Ciência da Computação
+Professora: Anna Paula de Sousa Parente Rodrigues
+Alunos: 
+- Luiz Filipe de Souza Alves
+- Murilo Rodrigues Pereira
+
+# Conteúdos enviados:
+- Arquivo python com:
+	- Analisador léxico;
+	- Analisador Sintático;
+	- Analisador Semântico;
+	- Função principal;
+	- Estruturas de dados auxiliares;
+- Arquivos de teste:
+	- 2 Validados;
+	- 8 invalidados pelo analisador semântico;
+	- 1 arquivo de HelloWorld gerado pelo próprio compilador quando não se encontra o arquivo enviado como argumento.
+
+# Exemplo de uso:
+- Chamar o arquivo python no compilador com:
+
+```
+	python ./compilador.py <nome_do_arquivo>.cp
+```
+- Este arquivo também pode abrir outras extensões, como txt:
+
+```
+	python ./compilador.py <nome_do_arquivo>.txt
+```
+
+# flags:
+
+-main <flag> ... Se <flag> for "y", o arquivo main.c será deletado, senão será mantido;
+-cls ... Quando esta flag é colocada, o terminal é limpado após a execução do programa
+-v <flag> ... Se <flag> for "y", a árvore Sintática será mostrada e a tabela de símbolos também
+-h ... O arquivo HelloWorld será carregado automaticamente no compilador
+
+# Exemplo de uso das flags:
+- Obs.: As flags podem ser combinadas entre si em qualquer ordem, o script de pré-carregamento
+do compilador deverá ser capaz de solucioná-las
+
+## -main <flag>:
+
+```
+	python ./compilador.py <nome_do_arquivo>.cp -main y
+```
+```
+	python ./compilador.py <nome_do_arquivo>.cp -main n
+```
+
+## -cls:
+```
+	python ./compilador.py <nome_do_arquivo>.cp -cls
+```
+
+## -v:
+```
+	python ./compilador.py <nome_do_arquivo>.cp -v y
+```
+```
+	python ./compilador.py <nome_do_arquivo>.cp -v n
+```
+
+## -h:
+```
+	python ./compilador.py <nome_do_arquivo>.cp -h
+```
+
+# Observações:
+- O arquivo HelloWorld, depois de gerado, só poderá ser apagado pelo script de pós carregamento do 
+compilador na primeira vez que for carregado, se não for apagado, deverá ser deletado por outros 
+meios fora do código.
+
+- Aceita-se sugestões de melhoria para este compilador;
+
+- Agradecemos por ter paciência para ler este arquivo

@@ -4,7 +4,7 @@ algoritmo{
         flut j, t;
     }
     {
-        k = 1;
+        k = 2;
         Se(k==2){
            escreval("K e igual a 2"); 
         }

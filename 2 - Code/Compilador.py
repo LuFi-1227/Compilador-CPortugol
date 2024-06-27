@@ -1349,15 +1349,37 @@ class semantic():
         self.arquivoC.write("#include<"+include+">\n")
       flag = True
 
+flagHello = False
+flagMain = None
+flagClear = False
+Verbose = False
+cont = 0
+for args in sys.argv:
+  if args == '-main':
+    flagMain = sys.argv[cont+1]
+  if args == '-v':
+    Verbose = sys.argv[cont+1]
+  if args == '-cls':
+    flagClear = True
+  if args == '-h':
+    flagHello = True
+  cont += 1
+
 try:
-  if (sys.argv[1]):
-    P = parser(sys.argv[1])
+  if (sys.argv[1]) and not flagHello:
+    if(sys.argv[1].find('.cp')!=-1) or (sys.argv[1].find('.txt')!= -1):
+      print(sys.argv[1])
+      P = parser(sys.argv[1])
+    else:
+      print("extensão de arquivo não permitida no compilador de CPortugol")
+      exit()
   else:
-    P = parser('testefail1000.cp')
+    P = parser('arquivonaoexistente.jkjkjkjl')
 except FileNotFoundError:
   print("Arquivo não encontrado!")
   resposta = input("Deseja carregar o arquivo de Hello World? [S/n]")
   if resposta != 'n' and resposta != 'no' and resposta != 'nao' and resposta != 'not' and resposta != 'não': 
+    flagHello = True
     with open('HelloWorld.cp', 'w') as file:
       file.writelines("""
       algoritmo{
@@ -1380,8 +1402,11 @@ except FileNotFoundError:
     P = parser(r'HelloWorld.cp')
   else:
     exit()
-#P.Tabela_de_Simbolos.toString()
-#P.arvore.toString()
+if Verbose == 'y':
+  print("="*10+"Tabela de símbolos"+"="*10)
+  P.Tabela_de_Simbolos.toString()
+  print("="*10+"Arvore"+"="*10)
+  P.arvore.toString()
 
 S = semantic(P.Tabela_de_Simbolos, P.arvore)
 
@@ -1396,16 +1421,29 @@ except:
 
 try:
   open(r'HelloWorld.cp').close()
-  resposta = input("Deseja remover  o arquivo HelloWorld?[S/n]")
-  if resposta != 'n' and resposta != 'no' and resposta != 'nao' and resposta != 'not' and resposta != 'não': 
-    os.remove('HelloWorld.cp')
+  if flagHello:
+    resposta = input("Arquivo de HelloWorld encontrado, deseja remover  o arquivo HelloWorld?[S/n]")
+    if resposta != 'n' and resposta != 'no' and resposta != 'nao' and resposta != 'not' and resposta != 'não': 
+      os.remove('HelloWorld.cp')
 except FileNotFoundError:
   pass
 
 try:
-  resposta = input("Deseja remover o arquivo main.c?[S/n]")
+  if flagMain != 'y':
+    resposta = input("Deseja remover o arquivo main.c?[S/n]")
+  else:
+    resposta = 'y'
   open(r'main.c').close()
-  if resposta != 'n' and resposta != 'no' and resposta != 'nao' and resposta != 'not' and resposta != 'não': 
+  if (resposta != 'n' and resposta != 'no' and resposta != 'nao' and resposta != 'not' and resposta != 'não'): 
     os.remove('main.c')
 except:
   pass
+
+if flagClear == True:
+  try:
+    os.system('cls')
+  except:
+    try:
+      os.system('clear')
+    except:
+      exit()
